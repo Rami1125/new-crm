@@ -219,7 +219,14 @@
             <h1 class="text-2xl md:text-3xl font-bold text-center text-blue-800 mb-2">
                 <i class="fas fa-truck mr-2"></i>מערכת ניהול הזמנות ונהגים
             </h1>
-            
+            <div id="debugConsole" style="position:fixed; bottom:0; background:#fff; padding:10px; border-top:1px solid #ccc; width:100%;"></div>
+                     <script>
+                           function debugLog(message) {
+                            const debugDiv = document.getElementById('debugConsole');
+                            debugDiv.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+                           console.log(message);
+                              }
+                    </script>
             <div class="flex flex-wrap justify-center gap-4 mb-4">
                 <div class="bg-white p-3 rounded-lg shadow-sm text-center min-w-[120px]">
                     <div class="text-gray-500 text-sm">סה"כ הזמנות</div>
@@ -676,13 +683,13 @@
             document.getElementById('completedOrders').textContent = orders.filter(o => o['סטטוס'] === 'הושלם').length;
             document.getElementById('cancelledOrders').textContent = orders.filter(o => o['סטטוס'] === 'בוטל').length;
         }
-function renderOrders(orders) {
-  const tbody = document.getElementById('orders-body');
-  if (!tbody) return;
+        function renderOrders(orders) {
+            const tbody = document.getElementById('orders-body');
+               if (!tbody) return;
 
-  if (!orders || !orders.length) {
-    tbody.innerHTML = `<tr><td colspan="11" class="text-center text-gray-500 py-4">אין הזמנות להצגה</td></tr>`;
-    return;
+               if (!orders || !orders.length) {
+               tbody.innerHTML = `<tr><td colspan="11" class="text-center text-gray-500 py-4">אין הזמנות להצגה</td></tr>`;
+                return;
   }
 
   tbody.innerHTML = orders.map(order => {
@@ -706,7 +713,35 @@ function renderOrders(orders) {
     `;
   }).join('');
 }
-
+async function loadOrders() {
+  debugLog("מתחיל טעינת הזמנות...");
+  
+  try {
+    debugLog("שולח בקשה לשרת...");
+    const response = await fetch(`${SCRIPT_URL}getOrders`);
+    
+    debugLog(`תגובה התקבלה - סטטוס: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`שגואת HTTP: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    debugLog("נתונים שהתקבלו:", JSON.stringify(data).slice(0, 100) + "...");
+    
+    if (!data || data.error) {
+      throw new Error(data?.error || "לא התקבלו נתונים");
+    }
+    
+    allOrders = data;
+    debugLog(`נטענו ${allOrders.length} הזמנות`);
+    
+    renderOrdersTable();
+    
+  } catch (error) {
+    debugLog(`שגיאה: ${error.message}`);
+    document.getElementById('error').textContent = 'שגיאה: ' + error.message;
+  }
+}
 
         function filterOrders(orders) {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
