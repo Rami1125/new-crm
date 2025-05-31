@@ -99,32 +99,32 @@
                     <input type="hidden" id="orderId">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">מספר הזמנה</label>
-                        <input type="text" id="orderNumber" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                        <p id="orderNumberError" class="text-red-500 text-sm hidden">מספר הזמנה כבר קיים</p>
+                        <input type="text" id="orderNumber" name="orderNumber" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <p id="orderNumberError" class="error text-sm hidden">מספר הזמנה כבר קיים</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">תאריך</label>
-                        <input type="date" id="orderDate" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="date" id="orderDate" name="date" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">שעה</label>
-                        <input type="time" id="orderTime" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="time" id="orderTime" name="time" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">לקוח</label>
-                        <input type="text" id="customer" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="text" id="customer" name="customer" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">כתובת</label>
-                        <input type="text" id="address" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="text" id="address" name="address" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">מחסן</label>
-                        <input type="text" id="warehouse" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="text" id="warehouse" name="warehouse" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">סטטוס</label>
-                        <select id="status" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <select id="status" name="status" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                             <option value="ממתין">ממתין</option>
                             <option value="בטיפול">בטיפול</option>
                             <option value="הושלם">הושלם</option>
@@ -132,19 +132,19 @@
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">נהג</label>
-                        <input type="text" id="driver" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="driver" name="driver" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">סוג פעולה</label>
-                        <input type="text" id="actionType" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="actionType" name="actionType" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">זמן אספקה (דקות)</label>
-                        <input type="number" id="deliveryTime" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" min="0">
+                        <input type="number" id="deliveryTime" name="deliveryTime" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" min="0">
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">הערות</label>
-                        <textarea id="notes" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4"></textarea>
+                        <textarea id="notes" name="notes" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4"></textarea>
                     </div>
                     <div class="flex justify-end space-x-2 space-x-reverse">
                         <button type="button" onclick="closeOrderForm()" class="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600">בטל</button>
@@ -156,7 +156,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjQSieWrMsGpLzxFXQA0N3VbAvVT7HdMe6ZYZszXOB754SWIByHvBdbjZphrgY0WzDew/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXNRDz_XnWleI_qUexmc_L4HKDjzOiT6ZlPfNFUBA4KcUJVsAzMHVblvHk4wM1ZyR7MA/exec';
 
         // Show loading indicator
         function showLoading(show) {
@@ -175,7 +175,10 @@
         async function checkHealth() {
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=health`, { method: 'GET' });
-                if (!response.ok) throw new Error('שגיאה בבדיקת מצב השירות');
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`שגיאת שרת: ${response.status} ${text.startsWith('<!DOCTYPE') ? '(התקבלה תגובת HTML, ייתכן שצריך להתחבר או שהגישה נדחתה)' : text}`);
+                }
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
                 console.log('Health check successful:', data.message);
@@ -189,7 +192,10 @@
             showLoading(true);
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getOrders`, { method: 'GET' });
-                if (!response.ok) throw new Error('שגיאה בטעינת ההזמנות');
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`שגיאה בטעינת ההזמנות: ${response.status} ${text.startsWith('<!DOCTYPE') ? '(התקבלה תגובת HTML, בדוק הרשאות או התחברות)' : text}`);
+                }
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
                 const orders = data;
@@ -310,7 +316,10 @@
         async function checkOrderNumber(orderNumber, isEdit = false) {
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getOrders`);
-                if (!response.ok) throw new Error('שגיאה בבדיקת מספר הזמנה');
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`שגיאה בבדיקת מספר הזמנה: ${response.status} ${text.startsWith('<!DOCTYPE') ? '(התקבלה תגובת HTML)' : text}`);
+                }
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
                 return data.some(order => order['מספר הזמנה'] === orderNumber && (!isEdit || order['מספר הזמנה'] !== document.getElementById('orderId').value));
@@ -325,7 +334,10 @@
             showLoading(true);
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getOrder&orderNumber=${orderNumber}`);
-                if (!response.ok) throw new Error('שגיאה בטעינת ההזמנה');
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`שגיאה בטעינת ההזמנה: ${response.status} ${text.startsWith('<!DOCTYPE') ? '(התקבלה תגובת HTML)' : text}`);
+                }
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
                 openOrderForm(data);
@@ -349,7 +361,10 @@
                         method: 'POST',
                         body: JSON.stringify({ action: 'deleteOrder', orderNumber })
                     });
-                    if (!response.ok) throw new Error('שגיאה במחיקת ההזמנה');
+                    if (!response.ok) {
+                        const text = await response.text();
+                        throw new Error(`שגיאה במחיקת ההזמנה: ${response.status} ${text.startsWith('<!DOCTYPE') ? '(התקבלה תגובת HTML)' : text}`);
+                    }
                     const data = await response.json();
                     if (data.error) throw new Error(data.error);
                     fetchOrders();
@@ -396,7 +411,10 @@
                     method: 'POST',
                     body: JSON.stringify(order)
                 });
-                if (!response.ok) throw new Error('שגיאה בשמירת ההזמנה');
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`שגיאה בשמירת ההזמנה: ${response.status} ${text.startsWith('<!DOCTYPE') ? '(התקבלה תגובת HTML)' : text}`);
+                }
                 const data = await response.json();
                 if (data.error) throw new Error(data.error);
                 closeOrderForm();
