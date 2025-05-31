@@ -325,23 +325,18 @@
         <!-- Orders Table -->
         <div id="orders" class="tab-content">
             <div class="table-container">
-                <table id="ordersTable" class="w-full bg-white rounded-lg overflow-hidden shadow-sm">
-                    <thead>
-                        <tr class="bg-blue-600 text-white text-right text-sm">
-                            <th class="p-3">מספר הזמנה</th>
-                            <th class="p-3">לקוח</th>
-                            <th class="p-3">כתובת</th>
-                            <th class="p-3">מחסן</th>
-                            <th class="p-3">תאריך ושעה</th>
-                            <th class="p-3">סטטוס</th>
-                            <th class="p-3">נהג</th>
-                            <th class="p-3">פעולות</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersBody" class="divide-y divide-gray-100"></tbody>
-                </table>
-            </div>
-            
+                <table id="ordersTable" class="w-full bg-white rounded-lg overflow-hidden shadow-sm"><thead class="bg-blue-100 text-blue-900">
+                    <tr>
+                       <th class="px-3 py-2">מספר הזמנה</th>
+                       <th class="px-3 py-2">לקוח</th>
+                       <th class="px-3 py-2">כתובת</th>
+                       <th class="px-3 py-2">מחסן</th>
+                       <th class="px-3 py-2">תאריך ושעה</th>
+                       <th class="px-3 py-2">סטטוס</th>
+                       <th class="px-3 py-2">נהג</th>
+                       <th class="px-3 py-2">פעולות</th>
+                      </tr>
+               </thead>
             <div class="mt-4 text-center text-gray-500" id="noOrdersMessage" style="display: none;">
                 <i class="fas fa-box-open text-3xl mb-2"></i>
                 <p>לא נמצאו הזמנות תואמות לחיפוש</p>
@@ -678,35 +673,61 @@
             document.getElementById('completedOrders').textContent = orders.filter(o => o['סטטוס'] === 'הושלם').length;
             document.getElementById('cancelledOrders').textContent = orders.filter(o => o['סטטוס'] === 'בוטל').length;
         }
-
-   function renderOrders(orders) {
+function renderOrders(orders) {
   const tbody = document.getElementById('orders-body');
   if (!tbody) return;
 
-  if (!orders.length) {
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-gray-500 py-4">אין הזמנות להצגה</td></tr>`;
+  if (!orders || !orders.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-gray-500">אין הזמנות להצגה</td></tr>`;
     return;
   }
 
   tbody.innerHTML = orders.map(order => {
-    const [datePart, timePart] = (order["תאריך ושעה"] || '').split(' ');
+    const dateTime = order["תאריך ושעה"] || '';
+    const [datePart, timePart] = dateTime.includes('T') ? formatDateTimeFromISO(dateTime) : splitDateTime(dateTime);
+
     return `
-      <tr class="hover:bg-gray-50 border-b">
+      <tr class="border-b hover:bg-gray-50 text-sm">
         <td class="px-3 py-2">${order["מספר הזמנה"] || ''}</td>
-        <td class="px-3 py-2">${formatDate(datePart)} ${formatTime(timePart)}</td>
         <td class="px-3 py-2">${order["לקוח"] || ''}</td>
         <td class="px-3 py-2">${order["כתובת"] || ''}</td>
         <td class="px-3 py-2">${order["מחסן"] || ''}</td>
+        <td class="px-3 py-2">${datePart} ${timePart}</td>
         <td class="px-3 py-2 font-bold ${getStatusColor(order["סטטוס"])}">${order["סטטוס"] || ''}</td>
         <td class="px-3 py-2">${order["נהג"] || ''}</td>
         <td class="px-3 py-2">${order["פעולות"] || ''}</td>
-        <td class="px-3 py-2">${order["סוג הובלה"] || ''}</td>
       </tr>
     `;
   }).join('');
 }
-
         // Apply filters to orders
+         function splitDateTime(dateTimeStr) {
+  const parts = dateTimeStr.split(' ');
+  return [parts[0] || '', parts[1] || ''];
+}
+
+function formatDateTimeFromISO(isoString) {
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date)) return [isoString, ''];
+    const d = date.toLocaleDateString('he-IL');
+    const t = date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+    return [d, t];
+  } catch (e) {
+    return [isoString, ''];
+  }
+}
+         function getStatusColor(status) {
+  if (!status) return 'text-gray-500';
+  switch (status.trim()) {
+    case 'ממתינה': case 'ממתין': return 'text-yellow-500';
+    case 'בטיפול': return 'text-blue-600';
+    case 'הושלם': return 'text-green-600';
+    case 'בוטל': return 'text-red-500';
+    default: return 'text-gray-700';
+  }
+}
+
         function filterOrders(orders) {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
