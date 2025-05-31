@@ -572,7 +572,21 @@
             document.getElementById('loading').style.display = show ? 'block' : 'none';
             document.getElementById('error').style.display = 'none';
         }
-
+         function showTab(tabId) {
+        // Hide all tab contents
+         document.querySelectorAll('.tab-content').forEach(content => {
+         content.classList.add('hidden');
+         });
+  
+        // Show the selected tab
+         document.getElementById(tabId).classList.remove('hidden');
+  
+        // Update active tab styling
+         document.querySelectorAll('.tab-link').forEach(link => {
+         link.classList.remove('active');
+        });
+         event.currentTarget.classList.add('active');
+       }
         // Show error message
         function showError(message) {
             const errorDiv = document.getElementById('error');
