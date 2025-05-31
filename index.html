@@ -400,8 +400,8 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsRCjL8j6ZHOYXr8B3J4hbSCeAd3K8nWNqEiJ0tVgQJ4FpFsfVWEja5rvY8hwQ7vHC5g/exec';
-        const WHATSAPP_NUMBER = '0508860896';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxC_q6oeXK4fRfhKlEhTv5dHcofr-wDj1tdNUjwHGibWMyrcab8bD7HCuBpZKhAAFep6A/exec';
+        const WHATSAPP_NUMBER = '508860896';
         let allOrders = [];
 
         // Show loading indicator
@@ -417,30 +417,43 @@
             errorDiv.style.display = 'block';
         }
 
-        // Format date to DD-MM-YYYY
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            const date = new Date(dateStr);
-            if (isNaN(date)) return dateStr;
-            
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            
-            return `${day}-${month}-${year}`;
-        }
+/**
+ * מעצבת תאריך למבנה DD-MM-YYYY
+ * @param {string} dateStr - מחרוזת תאריך בפורמט ISO או אחר
+ * @returns {string} תאריך מעוצב במבנה יום-חודש-שנה
+ */
+function עיצובתאריך(dateStr) {
+    if (!dateStr) return '';
+    const תאריך = new Date(dateStr);
+    if (isNaN(תאריך)) return dateStr;
+    
+    const יום = String(תאריך.getDate()).padStart(2, '0');
+    const חודש = String(תאריך.getMonth() + 1).padStart(2, '0');
+    const שנה = תאריך.getFullYear();
+    
+    return `${יום}-${חודש}-${שנה}`;
+}
 
-        // Format time to HH:MM
-        function formatTime(timeStr) {
-            if (!timeStr) return '';
-            if (timeStr.includes(':')) return timeStr.split(':').slice(0, 2).join(':');
-            return timeStr;
-        }
+/**
+ * מעצבת שעה למבנה HH:MM
+ * @param {string} timeStr - מחרוזת שעה בפורמט כלשהו
+ * @returns {string} שעה מעוצבת במבנה שעות:דקות
+ */
+function עיצובשעה(timeStr) {
+    if (!timeStr) return '';
+    if (timeStr.includes(':')) return timeStr.split(':').slice(0, 2).join(':');
+    return timeStr;
+}
 
-        // Format date and time for display
-        function formatDateTime(dateStr, timeStr) {
-            return `${formatDate(dateStr)} ${formatTime(timeStr)}`;
-        }
+/**
+ * מעצבת תאריך ושעה לתצוגה
+ * @param {string} dateStr - מחרוזת תאריך
+ * @param {string} timeStr - מחרוזת שעה
+ * @returns {string} תאריך ושעה מעוצבים במבנה יום-חודש-שנה שעות:דקות
+ */
+function עיצובתאריךושעה(dateStr, timeStr) {
+    return `${עיצובתאריך(dateStr)} ${עיצובשעה(timeStr)}`;
+}
 
         // Check Web App health
         async function checkHealth() {
