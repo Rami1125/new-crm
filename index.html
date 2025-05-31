@@ -442,16 +442,7 @@ function formatTime(timeStr) {
 // Combine date and time with RTL support
 function formatDateTime(dateStr, timeStr) {
     return `${formatDate(dateStr)} ${formatTime(timeStr)}`; // Returns "12-02-2025 16:00" (RTL)
-}
-/**
- * מעצבת תאריך ושעה לתצוגה
- * @param {string} dateStr - מחרוזת תאריך
- * @param {string} timeStr - מחרוזת שעה
- * @returns {string} תאריך ושעה מעוצבים במבנה יום-חודש-שנה שעות:דקות
- */
-function עיצובתאריךושעה(dateStr, timeStr) {
-    return `${עיצובתאריך(dateStr)} ${עיצובשעה(timeStr)}`;
-}
+
 
         // Check Web App health
         async function checkHealth() {
