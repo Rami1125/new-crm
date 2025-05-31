@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת ניהול הזמנות ונהגים</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .modal { display: none; }
+        .modal.show { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4 text-center">מערכת ניהול הזמנות ונהגים</h1>
+
+        <!-- Search Bar -->
+        <div class="mb-4">
+            <input type="text" id="searchInput" class="w-full p-2 border rounded" placeholder="חפש לפי מספר הזמנה, לקוח, כתובת...">
+        </div>
+
+        <!-- Tabs for Orders and Driver Schedule -->
+        <div class="mb-4">
+            <ul class="flex border-b">
+                <li class="mr-1">
+                    <a class="bg-white inline-block py-2 px-4 text-blue-600 font-semibold border-b-2 border-blue-600" href="#orders" onclick="showTab('orders')">הזמנות</a>
+                </li>
+                <li class="mr-1">
+                    <a class="bg-white inline-block py-2 px-4 text-gray-600 font-semibold" href="#drivers" onclick="showTab('drivers')">לוח נהגים</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Orders Table -->
+        <div id="orders" class="tab-content">
+            <button onclick="openOrderForm()" class="mb-4 bg-blue-600 text-white p-2 rounded">הוסף הזמנה חדשה</button>
+            <table id="ordersTable" class="w-full bg-white shadow-md rounded">
+                <thead>
+                    <tr class="bg-gray-200 text-right">
+                        <th class="p-2">מספר הזמנה</th>
+                        <th class="p-2">תאריך</th>
+                        <th class="p-2">שעה</th>
+                        <th class="p-2">לקוח</th>
+                        <th class="p-2">כתובת</th>
+                        <th class="p-2">מחסן</th>
+                        <th class="p-2">סטטוס</th>
+                        <th class="p-2">נהג</th>
+                        <th class="p-2">סוג פעולה</th>
+                        <th class="p-2">זמן אספקה (דקות)</th>
+                        <th class="p-2">הערות</th>
+                        <th class="p-2">תאריך יצירה</th>
+                        <th class="p-2">פעולות</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Driver Schedule -->
+        <div id="drivers" class="tab-content hidden">
+            <table id="driversTable" class="w-full bg-white shadow-md rounded">
+                <thead>
+                    <tr class="bg-gray-200 text-right">
+                        <th class="p-2">נהג</th>
+                        <th class="p-2">הזמנות</th>
+                    </tr>
+                </thead>
+                <tbody id="driversBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Popup Form -->
+        <div id="orderFormModal" class="modal fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded shadow-lg w-1/2">
+                <h2 id="formTitle" class="text-xl font-bold mb-4">הוסף הזמנה חדשה</h2>
+                <form id="orderForm">
+                    <input type="hidden" id="orderId">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">מספר הזמנה</label>
+                        <input type="text" id="orderNumber" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">תאריך</label>
+                        <input type="date" id="orderDate" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">שעה</label>
+                        <input type="time" id="orderTime" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">לקוח</label>
+                        <input type="text" id="customer" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">כתובת</label>
+                        <input type="text" id="address" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">מחסן</label>
+                        <input type="text" id="warehouse" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">סטטוס</label>
+                        <select id="status" class="w-full p-2 border rounded" required>
+                            <option value="ממתין">ממתין</option>
+                            <option value="בטיפול">בטיפול</option>
+                            <option value="הושלם">הושלם</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">נהג</label>
+                        <input type="text" id="driver" class="w-full p-2 border rounded">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">סוג פעולה</label>
+                        <input type="text" id="actionType" class="w-full p-2 border rounded">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">זמן אספקה (דקות)</label>
+                        <input type="number" id="deliveryTime" class="w-full p-2 border rounded">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium">הערות</label>
+                        <textarea id="notes" class="w-full p-2 border rounded"></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="button" onclick="closeOrderForm()" class="bg-gray-500 text-white p-2 rounded mr-2">בטל</button>
+                        <button type="submit" class="bg-blue-600 text-white p-2 rounded">שמור</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL'; // Replace with your deployed Web App URL
+
+        // Fetch and display orders
+        async function fetchOrders() {
+            const response = await fetch(`${SCRIPT_URL}?action=getOrders`);
+            const orders = await response.json();
+            const tbody = document.getElementById('ordersBody');
+            tbody.innerHTML = '';
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="p-2">${order.orderNumber}</td>
+                    <td class="p-2">${order.date}</td>
+                    <td class="p-2">${order.time}</td>
+                    <td class="p-2">${order.customer}</td>
+                    <td class="p-2">${order.address}</td>
+                    <td class="p-2">${order.warehouse}</td>
+                    <td class="p-2">${order.status}</td>
+                    <td class="p-2">${order.driver}</td>
+                    <td class="p-2">${order.actionType}</td>
+                    <td class="p-2">${order.deliveryTime}</td>
+                    <td class="p-2">${order.notes}</td>
+                    <td class="p-2">${order.creationDate}</td>
+                    <td class="p-2">
+                        <button onclick="editOrder('${order.orderNumber}')" class="text-blue-600">ערוך</button>
+                        <button onclick="deleteOrder('${order.orderNumber}')" class="text-red-600">מחק</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            fetchDriverSchedule();
+        }
+
+        // Fetch and display driver schedule
+        async function fetchDriverSchedule() {
+            const response = await fetch(`${SCRIPT_URL}?action=getOrders`);
+            const orders = await response.json();
+            const drivers = {};
+            orders.forEach(order => {
+                if (order.driver) {
+                    if (!drivers[order.driver]) drivers[order.driver] = [];
+                    drivers[order.driver].push(order);
+                }
+            });
+            const tbody = document.getElementById('driversBody');
+            tbody.innerHTML = '';
+            for (const driver in drivers) {
+                const row = document.createElement('tr');
+                const ordersList = drivers[driver].map(o => `הזמנה ${o.orderNumber} (${o.customer}, ${o.address})`).join('<br>');
+                row.innerHTML = `
+                    <td class="p-2">${driver}</td>
+                    <td class="p-2">${ordersList}</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const search = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#ordersBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(search) ? '' : 'none';
+            });
+        });
+
+        // Show tab
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(tab).classList.remove('hidden');
+            document.querySelectorAll('.border-b-2').forEach(link => link.classList.remove('border-blue-600', 'text-blue-600'));
+            document.querySelector(`a[href="#${tab}"]`).classList.add('border-blue-600', 'text-blue-600');
+        }
+
+        // Open form
+        function openOrderForm(order = null) {
+            document.getElementById('orderFormModal').classList.add('show');
+            document.getElementById('formTitle').textContent = order ? 'ערוך הזמנה' : 'הוסף הזמנה חדשה';
+            document.getElementById('orderForm').reset();
+            document.getElementById('orderId').value = order ? order.orderNumber : '';
+            if (order) {
+                document.getElementById('orderNumber').value = order.orderNumber;
+                document.getElementById('orderDate').value = order.date;
+                document.getElementById('orderTime').value = order.time;
+                document.getElementById('customer').value = order.customer;
+                document.getElementById('address').value = order.address;
+                document.getElementById('warehouse').value = order.warehouse;
+                document.getElementById('status').value = order.status;
+                document.getElementById('driver').value = order.driver;
+                document.getElementById('actionType').value = order.actionType;
+                document.getElementById('deliveryTime').value = order.deliveryTime;
+                document.getElementById('notes').value = order.notes;
+            }
+        }
+
+        // Close form
+        function closeOrderForm() {
+            document.getElementById('orderFormModal').classList.remove('show');
+        }
+
+        // Edit order
+        async function editOrder(orderNumber) {
+            const response = await fetch(`${SCRIPT_URL}?action=getOrder&orderNumber=${orderNumber}`);
+            const order = await response.json();
+            openOrderForm(order);
+        }
+
+        // Delete order
+        async function deleteOrder(orderNumber) {
+            if (confirm('האם למחוק את ההזמנה?')) {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'deleteOrder', orderNumber })
+                });
+                fetchOrders();
+            }
+        }
+
+        // Form submission
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const order = {
+                action: document.getElementById('orderId').value ? 'updateOrder' : 'addOrder',
+                orderNumber: document.getElementById('orderNumber').value,
+                date: document.getElementById('orderDate').value,
+                time: document.getElementById('orderTime').value,
+                customer: document.getElementById('customer').value,
+                address: document.getElementById('address').value,
+                warehouse: document.getElementById('warehouse').value,
+                status: document.getElementById('status').value,
+                driver: document.getElementById('driver').value,
+                actionType: document.getElementById('actionType').value,
+                deliveryTime: document.getElementById('deliveryTime').value,
+                notes: document.getElementById('notes').value,
+                creationDate: new Date().toISOString().split('T')[0]
+            };
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(order)
+            });
+            closeOrderForm();
+            fetchOrders();
+        });
+
+        // Initial load
+        fetchOrders();
+    </script>
+</body>
+</html>
