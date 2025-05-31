@@ -858,7 +858,7 @@ function getStatusColor(status) {
 
         // Get driver phone number (mock function - replace with actual data)
         function openDriverForm(orderId) {
-         const url = `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?order=${orderId}`;
+         const url = `https://script.google.com/macros/s/AKfycbytyPZdvRhqObCi9yNu3did4JKd5aIshmwOZbbqtB9tSeCr6-qeQaV_HbFciUcWWb-XMg/exec?order=${orderId}`;
                   window.open(url, '_blank');
         }
 
@@ -1094,13 +1094,13 @@ function getStatusColor(status) {
             }
             
             const message = `פרטי הזמנה:
-מספר הזמנה: ${currentOrderToShare['מספר הזמנה']}
-לקוח: ${currentOrderToShare['לקוח']}
-כתובת: ${currentOrderToShare['כתובת']}
-מחסן: ${currentOrderToShare['מחסן']}
-תאריך: ${formatDate(currentOrderToShare['תאריך'])}
-שעה: ${formatTime(currentOrderToShare['שעה'])}
-הערות: ${currentOrderToShare['הערות'] || 'אין הערות'}`;
+                מספר הזמנה: ${currentOrderToShare['מספר הזמנה']}
+                לקוח: ${currentOrderToShare['לקוח']}
+               כתובת: ${currentOrderToShare['כתובת']}
+                מחסן: ${currentOrderToShare['מחסן']}
+               תאריך: ${formatDate(currentOrderToShare['תאריך'])}
+                שעה: ${formatTime(currentOrderToShare['שעה'])}
+               הערות: ${currentOrderToShare['הערות'] || 'אין הערות'}`;
             
             const encodedMessage = encodeURIComponent(message);
             window.open(`https://wa.me/${selectedDriverPhone}?text=${encodedMessage}`, '_blank');
