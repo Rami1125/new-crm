@@ -656,7 +656,7 @@
                 
                 allOrders = data;
                 updateKPIs(allOrders);
-                renderOrders(allOrders);
+                (allOrders);
                 updateDriversList(allOrders);
                 renderDriverSchedule();
             } catch (error) {
@@ -679,57 +679,32 @@
             document.getElementById('cancelledOrders').textContent = orders.filter(o => o['סטטוס'] === 'בוטל').length;
         }
 
-        // Render orders table
-        function renderOrders(orders) {
-            const filteredOrders = filterOrders(orders);
-            const tbody = document.getElementById('ordersBody');
-            tbody.innerHTML = '';
-            
-            if (filteredOrders.length === 0) {
-                document.getElementById('noOrdersMessage').style.display = 'block';
-            } else {
-                document.getElementById('noOrdersMessage').style.display = 'none';
-                
-                filteredOrders.forEach(order => {
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50';
-                    row.innerHTML = `
-                        <td class="p-3 font-medium">${order['מספר הזמנה']}</td>
-                        <td class="p-3">${order['לקוח']}</td>
-                        <td class="p-3">${order['כתובת']}</td>
-                        <td class="p-3">${order['מחסן']}</td>
-                        <td class="p-3">${formatDateTime(order['תאריך'], order['שעה'])}</td>
-                        <td class="p-3">
-                            <span class="px-2 py-1 rounded-full text-xs font-medium ${
-                                order['סטטוס'] === 'ממתין' ? 'status-pending' : 
-                                order['סטטוס'] === 'בטיפול' ? 'status-in-progress' : 
-                                order['סטטוס'] === 'הושלם' ? 'status-completed' : 'status-cancelled'
-                            }">
-                                ${order['סטטוס']}
-                            </span>
-                        </td>
-                        <td class="p-3">${order['נהג'] || '-'}</td>
-                        <td class="p-3">
-                            <div class="flex space-x-2 space-x-reverse">
-                                <button onclick="showOrderDetails('${order['מספר הזמנה']}')" class="text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button onclick="editOrder('${order['מספר הזמנה']}')" class="text-yellow-600 hover:text-yellow-800">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="openShareModal('${order['מספר הזמנה']}')" class="text-green-600 hover:text-green-800">
-                                    <i class="fas fa-share-alt"></i>
-                                </button>
-                                <button onclick="deleteOrder('${order['מספר הזמנה']}')" class="text-red-600 hover:text-red-800">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-        }
+   function renderOrders(orders) {
+  const tbody = document.getElementById('orders-body');
+  if (!tbody) return;
+
+  if (!orders.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-gray-500 py-4">אין הזמנות להצגה</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = orders.map(order => {
+    const [datePart, timePart] = (order["תאריך ושעה"] || '').split(' ');
+    return `
+      <tr class="hover:bg-gray-50 border-b">
+        <td class="px-3 py-2">${order["מספר הזמנה"] || ''}</td>
+        <td class="px-3 py-2">${formatDate(datePart)} ${formatTime(timePart)}</td>
+        <td class="px-3 py-2">${order["לקוח"] || ''}</td>
+        <td class="px-3 py-2">${order["כתובת"] || ''}</td>
+        <td class="px-3 py-2">${order["מחסן"] || ''}</td>
+        <td class="px-3 py-2 font-bold ${getStatusColor(order["סטטוס"])}">${order["סטטוס"] || ''}</td>
+        <td class="px-3 py-2">${order["נהג"] || ''}</td>
+        <td class="px-3 py-2">${order["פעולות"] || ''}</td>
+        <td class="px-3 py-2">${order["סוג הובלה"] || ''}</td>
+      </tr>
+    `;
+  }).join('');
+}
 
         // Apply filters to orders
         function filterOrders(orders) {
