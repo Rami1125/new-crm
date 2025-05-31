@@ -417,34 +417,32 @@
             errorDiv.style.display = 'block';
         }
 
-/**
- * מעצבת תאריך למבנה DD-MM-YYYY
- * @param {string} dateStr - מחרוזת תאריך בפורמט ISO או אחר
- * @returns {string} תאריך מעוצב במבנה יום-חודש-שנה
- */
-function עיצובתאריך(dateStr) {
+function formatDate(dateStr) {
     if (!dateStr) return '';
-    const תאריך = new Date(dateStr);
-    if (isNaN(תאריך)) return dateStr;
+    const date = new Date(dateStr);
+    if (isNaN(date)) return dateStr;
     
-    const יום = String(תאריך.getDate()).padStart(2, '0');
-    const חודש = String(תאריך.getMonth() + 1).padStart(2, '0');
-    const שנה = תאריך.getFullYear();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
     
-    return `${יום}-${חודש}-${שנה}`;
+    return `${day}-${month}-${year}`; // Returns "12-02-2025"
 }
 
-/**
- * מעצבת שעה למבנה HH:MM
- * @param {string} timeStr - מחרוזת שעה בפורמט כלשהו
- * @returns {string} שעה מעוצבת במבנה שעות:דקות
- */
-function עיצובשעה(timeStr) {
+// Format time to HH:MM (24-hour format)
+function formatTime(timeStr) {
     if (!timeStr) return '';
-    if (timeStr.includes(':')) return timeStr.split(':').slice(0, 2).join(':');
-    return timeStr;
+    if (timeStr.includes(':')) {
+        const [hours, minutes] = timeStr.split(':');
+        return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+    }
+    return timeStr; // Returns "16:00"
 }
 
+// Combine date and time with RTL support
+function formatDateTime(dateStr, timeStr) {
+    return `${formatDate(dateStr)} ${formatTime(timeStr)}`; // Returns "12-02-2025 16:00" (RTL)
+}
 /**
  * מעצבת תאריך ושעה לתצוגה
  * @param {string} dateStr - מחרוזת תאריך
