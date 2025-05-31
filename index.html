@@ -857,6 +857,11 @@ function getStatusColor(status) {
         }
 
         // Get driver phone number (mock function - replace with actual data)
+        function openDriverForm(orderId) {
+         const url = `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?order=${orderId}`;
+                  window.open(url, '_blank');
+        }
+
         function getDriverPhone(driverName) {
             // This is a mock function - in a real app you would have a mapping of drivers to phone numbers
             if (driverName === 'עלי') return '9725475188';
