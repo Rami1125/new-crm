@@ -10,18 +10,32 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap');
         
+        :root {
+            --primary: #3b82f6;
+            --primary-light: #93c5fd;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+        }
+        
         body {
             font-family: 'Rubik', sans-serif;
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
         }
         
         .glass-effect {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .neon-effect {
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5), 
+                        0 0 20px rgba(59, 130, 246, 0.3);
         }
         
         .modal {
@@ -41,7 +55,7 @@
         }
         
         .error {
-            color: #ef4444;
+            color: var(--danger);
             display: none;
             margin-bottom: 1rem;
             text-align: center;
@@ -95,6 +109,81 @@
             margin: 1rem 0;
         }
         
+        .time-slot {
+            position: relative;
+            height: 60px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .time-label {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        
+        .order-card {
+            position: absolute;
+            width: calc(100% - 40px);
+            margin-right: 40px;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            z-index: 1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeIn 0.2s;
+        }
+        
+        .dropdown-item {
+            padding: 10px 16px;
+            text-decoration: none;
+            display: block;
+            color: #334155;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f1f5f9;
+        }
+        
+        .phone-input {
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+        
+        .led-display {
+            background-color: #1e293b;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 10px 0;
+            font-size: 1.2rem;
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .container {
@@ -110,6 +199,15 @@
                 width: 95%;
                 max-height: 90vh;
                 overflow-y: auto;
+            }
+            
+            .time-slot {
+                height: 40px;
+            }
+            
+            .order-card {
+                font-size: 0.7rem;
+                padding: 4px;
             }
         }
     </style>
@@ -199,14 +297,14 @@
                     </a>
                 </li>
                 <li class="mr-1">
-                    <button onclick="generateWhatsAppReport()" 
+                    <button onclick="generateMorningReport()" 
                             class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg font-semibold">
                             <i class="fab fa-whatsapp mr-1"></i>שלח דוח בוקר
                     </button>
                 </li>
                 <li class="flex-1 text-left">
                     <button onclick="openOrderForm()" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg font-semibold blink">
+                            class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg font-semibold blink neon-effect">
                             <i class="fas fa-plus mr-1"></i>הזמנה חדשה
                     </button>
                 </li>
@@ -231,10 +329,10 @@
                     <thead>
                         <tr class="bg-blue-600 text-white text-right text-sm">
                             <th class="p-3">מספר הזמנה</th>
-                            <th class="p-3">תאריך ושעה</th>
                             <th class="p-3">לקוח</th>
                             <th class="p-3">כתובת</th>
                             <th class="p-3">מחסן</th>
+                            <th class="p-3">תאריך ושעה</th>
                             <th class="p-3">סטטוס</th>
                             <th class="p-3">נהג</th>
                             <th class="p-3">פעולות</th>
@@ -252,23 +350,27 @@
 
         <!-- Driver Schedule -->
         <div id="drivers" class="tab-content hidden">
-            <div class="table-container">
-                <table id="driversTable" class="w-full bg-white rounded-lg overflow-hidden shadow-sm">
-                    <thead>
-                        <tr class="bg-blue-600 text-white text-right text-sm">
-                            <th class="p-3">נהג</th>
-                            <th class="p-3">מחסן</th>
-                            <th class="p-3">מספר הזמנות</th>
-                            <th class="p-3">פרטי הזמנות</th>
-                        </tr>
-                    </thead>
-                    <tbody id="driversBody" class="divide-y divide-gray-100"></tbody>
-                </table>
+            <div class="mb-4">
+                <select id="driverFilter" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="all">כל הנהגים</option>
+                </select>
             </div>
             
-            <div class="mt-4 text-center text-gray-500" id="noDriversMessage" style="display: none;">
-                <i class="fas fa-user-slash text-3xl mb-2"></i>
-                <p>לא נמצאו נהגים עם הזמנות פעילות</p>
+            <div class="glass-effect p-4 mb-4">
+                <div id="driverScheduleHeader" class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold" id="selectedDriverName">לוח זמנים לנהג</h3>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <button id="shareDriverSchedule" class="bg-blue-100 text-blue-600 p-2 rounded-lg hover:bg-blue-200">
+                            <i class="fas fa-share-alt mr-1"></i>שתף לוח זמנים
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <div id="timelineContainer" style="height: 720px; overflow-y: auto;">
+                        <!-- Timeline will be generated here -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -397,12 +499,73 @@
                 </div>
             </div>
         </div>
+
+        <!-- Share Order Modal -->
+        <div id="shareOrderModal" class="modal fixed inset-0 bg-gray-600 bg-opacity-50 items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <div class="flex justify-between items-center border-b p-4">
+                    <h3 class="text-xl font-bold text-blue-800">שתף הזמנה לנהג</h3>
+                    <button onclick="closeShareModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">בחר נהג:</label>
+                        <div class="relative">
+                            <button id="driverDropdownButton" class="w-full p-3 border rounded-lg text-right flex justify-between items-center">
+                                <span id="selectedDriver">בחר נהג</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div id="driverDropdown" class="dropdown-menu mt-1 w-full">
+                                <!-- Drivers will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="customPhoneSection" class="hidden">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">מספר טלפון:</label>
+                            <div class="led-display" id="phoneDisplay">+972</div>
+                            <div class="grid grid-cols-3 gap-2 mb-2">
+                                <button onclick="appendPhoneNumber('1')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">1</button>
+                                <button onclick="appendPhoneNumber('2')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">2</button>
+                                <button onclick="appendPhoneNumber('3')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">3</button>
+                                <button onclick="appendPhoneNumber('4')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">4</button>
+                                <button onclick="appendPhoneNumber('5')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">5</button>
+                                <button onclick="appendPhoneNumber('6')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">6</button>
+                                <button onclick="appendPhoneNumber('7')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">7</button>
+                                <button onclick="appendPhoneNumber('8')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">8</button>
+                                <button onclick="appendPhoneNumber('9')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">9</button>
+                                <button onclick="appendPhoneNumber('0')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">0</button>
+                                <button onclick="appendPhoneNumber('+')" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">+</button>
+                                <button onclick="backspacePhoneNumber()" class="p-3 bg-gray-100 rounded-lg hover:bg-gray-200">
+                                    <i class="fas fa-backspace"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-2 space-x-reverse pt-4 border-t">
+                        <button onclick="closeShareModal()" class="bg-gray-500 hover:bg-gray-600 text-white p-3 rounded-lg font-semibold">
+                            ביטול
+                        </button>
+                        <button id="confirmShareButton" onclick="shareOrder()" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-semibold">
+                            שלח
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxC_q6oeXK4fRfhKlEhTv5dHcofr-wDj1tdNUjwHGibWMyrcab8bD7HCuBpZKhAAFep6A/exec';
-        const WHATSAPP_NUMBER = '508860896';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsRCjL8j6ZHOYXr8B3J4hbSCeAd3K8nWNqEiJ0tVgQJ4FpFsfVWEja5rvY8hwQ7vHC5g/exec';
+        const WHATSAPP_NUMBER = '0508860896';
         let allOrders = [];
+        let currentOrderToShare = null;
+        let selectedDriverPhone = '';
+        let driversList = [];
 
         // Show loading indicator
         function showLoading(show) {
@@ -415,7 +578,10 @@
             const errorDiv = document.getElementById('error');
             errorDiv.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
             errorDiv.style.display = 'block';
-        }        function formatDate(dateStr) {
+        }
+
+        // Format date to DD-MM-YYYY
+        function formatDate(dateStr) {
             if (!dateStr) return '';
             const date = new Date(dateStr);
             if (isNaN(date)) return dateStr;
@@ -438,10 +604,13 @@
         function formatDateTime(dateStr, timeStr) {
             return `${formatDate(dateStr)} ${formatTime(timeStr)}`;
         }
-// Combine date and time with RTL support
-function formatDateTime(dateStr, timeStr) {
-    return `${formatDate(dateStr)} ${formatTime(timeStr)}`; // Returns "12-02-2025 16:00" (RTL)
 
+        // Calculate time position in timeline
+        function calculateTimePosition(timeStr) {
+            if (!timeStr) return 0;
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return (hours - 6) * 60 + minutes;
+        }
 
         // Check Web App health
         async function checkHealth() {
@@ -474,7 +643,8 @@ function formatDateTime(dateStr, timeStr) {
                 allOrders = data;
                 updateKPIs(allOrders);
                 renderOrders(allOrders);
-                fetchDriverSchedule(allOrders);
+                updateDriversList(allOrders);
+                renderDriverSchedule();
             } catch (error) {
                 if (retryCount < 3) {
                     setTimeout(() => fetchOrders(retryCount + 1), 5000);
@@ -511,10 +681,10 @@ function formatDateTime(dateStr, timeStr) {
                     row.className = 'hover:bg-gray-50';
                     row.innerHTML = `
                         <td class="p-3 font-medium">${order['מספר הזמנה']}</td>
-                        <td class="p-3">${formatDateTime(order['תאריך'], order['שעה'])}</td>
                         <td class="p-3">${order['לקוח']}</td>
                         <td class="p-3">${order['כתובת']}</td>
                         <td class="p-3">${order['מחסן']}</td>
+                        <td class="p-3">${formatDateTime(order['תאריך'], order['שעה'])}</td>
                         <td class="p-3">
                             <span class="px-2 py-1 rounded-full text-xs font-medium ${
                                 order['סטטוס'] === 'ממתין' ? 'status-pending' : 
@@ -526,15 +696,20 @@ function formatDateTime(dateStr, timeStr) {
                         </td>
                         <td class="p-3">${order['נהג'] || '-'}</td>
                         <td class="p-3">
-                            <button onclick="showOrderDetails('${order['מספר הזמנה']}')" class="text-blue-600 hover:text-blue-800 mr-2">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button onclick="editOrder('${order['מספר הזמנה']}')" class="text-yellow-600 hover:text-yellow-800 mr-2">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteOrder('${order['מספר הזמנה']}')" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
+                            <div class="flex space-x-2 space-x-reverse">
+                                <button onclick="showOrderDetails('${order['מספר הזמנה']}')" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="editOrder('${order['מספר הזמנה']}')" class="text-yellow-600 hover:text-yellow-800">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="openShareModal('${order['מספר הזמנה']}')" class="text-green-600 hover:text-green-800">
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                                <button onclick="deleteOrder('${order['מספר הזמנה']}')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -565,57 +740,138 @@ function formatDateTime(dateStr, timeStr) {
             });
         }
 
-        // Fetch and display driver schedule
-        function fetchDriverSchedule(orders) {
-            const drivers = {};
+        // Update drivers list from orders
+        function updateDriversList(orders) {
+            const drivers = new Set();
             orders.forEach(order => {
-                const driver = order['נהג'];
-                const warehouse = order['מחסן'];
-                if (driver && driver !== '-') {
-                    if (!drivers[driver]) {
-                        drivers[driver] = {
-                            warehouse: warehouse,
-                            orders: []
-                        };
-                    }
-                    drivers[driver].orders.push(order);
+                if (order['נהג'] && order['נהג'] !== '-') {
+                    drivers.add(order['נהג']);
                 }
             });
             
-            const tbody = document.getElementById('driversBody');
-            tbody.innerHTML = '';
+            driversList = Array.from(drivers).sort();
             
-            if (Object.keys(drivers).length === 0) {
-                document.getElementById('noDriversMessage').style.display = 'block';
-            } else {
-                document.getElementById('noDriversMessage').style.display = 'none';
+            // Update driver filter dropdown
+            const driverFilter = document.getElementById('driverFilter');
+            driverFilter.innerHTML = '<option value="all">כל הנהגים</option>';
+            driversList.forEach(driver => {
+                const option = document.createElement('option');
+                option.value = driver;
+                option.textContent = driver;
+                driverFilter.appendChild(option);
+            });
+            
+            // Update share dropdown
+            const driverDropdown = document.getElementById('driverDropdown');
+            driverDropdown.innerHTML = '';
+            
+            driversList.forEach(driver => {
+                const item = document.createElement('a');
+                item.className = 'dropdown-item';
+                item.href = '#';
+                item.textContent = driver;
+                item.onclick = (e) => {
+                    e.preventDefault();
+                    document.getElementById('selectedDriver').textContent = driver;
+                    document.getElementById('customPhoneSection').classList.add('hidden');
+                    selectedDriverPhone = getDriverPhone(driver);
+                    document.getElementById('driverDropdown').classList.remove('show');
+                };
+                driverDropdown.appendChild(item);
+            });
+            
+            // Add "Other" option
+            const otherItem = document.createElement('a');
+            otherItem.className = 'dropdown-item';
+            otherItem.href = '#';
+            otherItem.textContent = 'אחר';
+            otherItem.onclick = (e) => {
+                e.preventDefault();
+                document.getElementById('selectedDriver').textContent = 'הזן מספר טלפון';
+                document.getElementById('customPhoneSection').classList.remove('hidden');
+                document.getElementById('phoneDisplay').textContent = '+972';
+                selectedDriverPhone = '';
+                document.getElementById('driverDropdown').classList.remove('show');
+            };
+            driverDropdown.appendChild(otherItem);
+        }
+
+        // Get driver phone number (mock function - replace with actual data)
+        function getDriverPhone(driverName) {
+            // This is a mock function - in a real app you would have a mapping of drivers to phone numbers
+            if (driverName === 'עלי') return '9725475188';
+            if (driverName === 'חכמת') return '972532316985';
+            return '';
+        }
+
+        // Render driver schedule timeline
+        function renderDriverSchedule() {
+            const driverFilter = document.getElementById('driverFilter').value;
+            const filteredOrders = allOrders.filter(order => 
+                (driverFilter === 'all' || order['נהג'] === driverFilter) &&
+                order['נהג'] && order['נהג'] !== '-'
+            );
+            
+            const timelineContainer = document.getElementById('timelineContainer');
+            timelineContainer.innerHTML = '';
+            
+            if (filteredOrders.length === 0) {
+                timelineContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-user-slash text-4xl mb-4"></i>
+                        <p>לא נמצאו הזמנות לנהג זה</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Create timeline from 06:00 to 17:00
+            for (let hour = 6; hour <= 17; hour++) {
+                const timeSlot = document.createElement('div');
+                timeSlot.className = 'time-slot';
                 
-                for (const driver in drivers) {
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50';
-                    
-                    const ordersList = drivers[driver].orders.map(o => `
-                        <div class="mb-2 last:mb-0">
-                            <strong>הזמנה ${o['מספר הזמנה']}</strong><br>
-                            ${o['לקוח']}, ${o['כתובת']}<br>
-                            <span class="text-xs ${
-                                o['סטטוס'] === 'ממתין' ? 'text-yellow-600' : 
-                                o['סטטוס'] === 'בטיפול' ? 'text-blue-600' : 
-                                o['סטטוס'] === 'הושלם' ? 'text-green-600' : 'text-red-600'
-                            }">
-                                ${o['סטטוס']} | ${formatDateTime(o['תאריך'], o['שעה'])}
-                            </span>
-                        </div>
-                    `).join('');
-                    
-                    row.innerHTML = `
-                        <td class="p-3 font-medium">${driver}</td>
-                        <td class="p-3">${drivers[driver].warehouse}</td>
-                        <td class="p-3">${drivers[driver].orders.length}</td>
-                        <td class="p-3 text-sm">${ordersList}</td>
-                    `;
-                    tbody.appendChild(row);
-                }
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'time-label';
+                timeLabel.textContent = `${hour}:00`;
+                
+                timeSlot.appendChild(timeLabel);
+                timelineContainer.appendChild(timeSlot);
+            }
+            
+            // Add orders to timeline
+            filteredOrders.forEach(order => {
+                if (!order['שעה']) return;
+                
+                const [hours, minutes] = order['שעה'].split(':').map(Number);
+                if (hours < 6 || hours > 17) return;
+                
+                const timePosition = calculateTimePosition(order['שעה']);
+                const timeSlotHeight = 60; // 60px per hour
+                const position = (timePosition / 60) * timeSlotHeight;
+                
+                const orderCard = document.createElement('div');
+                orderCard.className = `order-card ${
+                    order['סטטוס'] === 'ממתין' ? 'bg-yellow-100 border-yellow-200' : 
+                    order['סטטוס'] === 'בטיפול' ? 'bg-blue-100 border-blue-200' : 
+                    order['סטטוס'] === 'הושלם' ? 'bg-green-100 border-green-200' : 'bg-red-100 border-red-200'
+                } border`;
+                orderCard.style.top = `${position}px`;
+                
+                orderCard.innerHTML = `
+                    <div class="font-medium">${order['מספר הזמנה']}</div>
+                    <div class="text-sm truncate">${order['לקוח']}</div>
+                    <div class="text-xs text-gray-600">${order['שעה']}</div>
+                `;
+                
+                orderCard.onclick = () => showOrderDetails(order['מספר הזמנה']);
+                timelineContainer.appendChild(orderCard);
+            });
+            
+            // Update driver name in header
+            if (driverFilter !== 'all') {
+                document.getElementById('selectedDriverName').textContent = `לוח זמנים לנהג: ${driverFilter}`;
+            } else {
+                document.getElementById('selectedDriverName').textContent = 'לוח זמנים לכל הנהגים';
             }
         }
 
@@ -701,6 +957,10 @@ function formatDateTime(dateStr, timeStr) {
                                 class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg font-semibold flex items-center">
                                 <i class="fas fa-edit mr-1"></i> ערוך הזמנה
                         </button>
+                        <button onclick="openShareModal('${order['מספר הזמנה']}')" 
+                                class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg font-semibold flex items-center">
+                                <i class="fas fa-share-alt mr-1"></i> שתף לנהג
+                        </button>
                     </div>
                 `;
                 
@@ -717,6 +977,72 @@ function formatDateTime(dateStr, timeStr) {
             document.getElementById('orderDetailsModal').classList.remove('show');
         }
 
+        // Open share modal
+        function openShareModal(orderNumber) {
+            currentOrderToShare = allOrders.find(o => o['מספר הזמנה'] === orderNumber);
+            if (!currentOrderToShare) {
+                showError('ההזמנה לא נמצאה');
+                return;
+            }
+            
+            document.getElementById('selectedDriver').textContent = 'בחר נהג';
+            document.getElementById('customPhoneSection').classList.add('hidden');
+            selectedDriverPhone = '';
+            
+            document.getElementById('shareOrderModal').classList.add('show');
+        }
+
+        // Close share modal
+        function closeShareModal() {
+            document.getElementById('shareOrderModal').classList.remove('show');
+            currentOrderToShare = null;
+        }
+
+        // Append number to phone display
+        function appendPhoneNumber(num) {
+            const display = document.getElementById('phoneDisplay');
+            if (display.textContent.length < 15) { // Limit phone number length
+                display.textContent += num;
+                selectedDriverPhone = display.textContent.replace('+', '');
+            }
+        }
+
+        // Backspace phone number
+        function backspacePhoneNumber() {
+            const display = document.getElementById('phoneDisplay');
+            if (display.textContent.length > 4) { // Don't delete the +972 prefix
+                display.textContent = display.textContent.slice(0, -1);
+                selectedDriverPhone = display.textContent.replace('+', '');
+            }
+        }
+
+        // Share order to driver
+        function shareOrder() {
+            if (!currentOrderToShare) {
+                showError('לא נבחרה הזמנה לשיתוף');
+                return;
+            }
+            
+            if (!selectedDriverPhone) {
+                showError('נא לבחור נהג או להזין מספר טלפון');
+                return;
+            }
+            
+            const message = `פרטי הזמנה:
+מספר הזמנה: ${currentOrderToShare['מספר הזמנה']}
+לקוח: ${currentOrderToShare['לקוח']}
+כתובת: ${currentOrderToShare['כתובת']}
+מחסן: ${currentOrderToShare['מחסן']}
+תאריך: ${formatDate(currentOrderToShare['תאריך'])}
+שעה: ${formatTime(currentOrderToShare['שעה'])}
+הערות: ${currentOrderToShare['הערות'] || 'אין הערות'}`;
+            
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/${selectedDriverPhone}?text=${encodedMessage}`, '_blank');
+            
+            closeShareModal();
+        }
+
         // Search functionality
         document.getElementById('searchInput').addEventListener('input', function() {
             renderOrders(allOrders);
@@ -729,6 +1055,21 @@ function formatDateTime(dateStr, timeStr) {
 
         document.getElementById('warehouseFilter').addEventListener('change', function() {
             renderOrders(allOrders);
+        });
+
+        document.getElementById('driverFilter').addEventListener('change', function() {
+            renderDriverSchedule();
+        });
+
+        // Driver dropdown toggle
+        document.getElementById('driverDropdownButton').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('driverDropdown').classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function() {
+            document.getElementById('driverDropdown').classList.remove('show');
         });
 
         // Show tab
@@ -746,6 +1087,11 @@ function formatDateTime(dateStr, timeStr) {
             if (activeLink) {
                 activeLink.classList.add('border-b-2', 'border-blue-600', 'text-blue-600');
                 activeLink.classList.remove('text-gray-600');
+            }
+            
+            // If showing drivers tab, render the schedule
+            if (tab === 'drivers') {
+                renderDriverSchedule();
             }
         }
 
@@ -842,7 +1188,7 @@ function formatDateTime(dateStr, timeStr) {
         }
 
         // Generate WhatsApp morning report
-        async function generateWhatsAppReport() {
+        async function generateMorningReport() {
             showLoading(true);
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=generateMorningReport`, { method: 'GET' });
@@ -861,6 +1207,44 @@ function formatDateTime(dateStr, timeStr) {
                 showLoading(false);
             }
         }
+
+        // Share driver schedule
+        document.getElementById('shareDriverSchedule').addEventListener('click', function() {
+            const driverFilter = document.getElementById('driverFilter').value;
+            if (driverFilter === 'all') {
+                showError('נא לבחור נהג ספציפי לשיתוף לוח הזמנים');
+                return;
+            }
+            
+            const driverOrders = allOrders.filter(order => 
+                order['נהג'] === driverFilter && order['נהג'] && order['נהג'] !== '-'
+            );
+            
+            if (driverOrders.length === 0) {
+                showError('לא נמצאו הזמנות לנהג זה');
+                return;
+            }
+            
+            const driverPhone = getDriverPhone(driverFilter);
+            if (!driverPhone) {
+                showError('לא נמצא מספר טלפון עבור נהג זה');
+                return;
+            }
+            
+            let message = `לוח זמנים לנהג ${driverFilter}:\n\n`;
+            
+            driverOrders.forEach(order => {
+                message += `הזמנה ${order['מספר הזמנה']}\n`;
+                message += `לקוח: ${order['לקוח']}\n`;
+                message += `כתובת: ${order['כתובת']}\n`;
+                message += `שעה: ${formatTime(order['שעה'])}\n`;
+                message += `סטטוס: ${order['סטטוס']}\n`;
+                message += `הערות: ${order['הערות'] || 'אין הערות'}\n\n`;
+            });
+            
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/${driverPhone}?text=${encodedMessage}`, '_blank');
+        });
 
         // Form submission
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
