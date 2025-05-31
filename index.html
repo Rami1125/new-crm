@@ -681,7 +681,7 @@ function renderOrders(orders) {
   if (!tbody) return;
 
   if (!orders || !orders.length) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-gray-500">אין הזמנות להצגה</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" class="text-center text-gray-500 py-4">אין הזמנות להצגה</td></tr>`;
     return;
   }
 
@@ -691,45 +691,22 @@ function renderOrders(orders) {
 
     return `
       <tr class="border-b hover:bg-gray-50 text-sm">
-        <td class="px-3 py-2">${order["מספר הזמנה"] || ''}</td>
+        <td class="px-3 py-2 font-semibold">${order["מספר הזמנה"] || ''}</td>
+        <td class="px-3 py-2">${datePart} ${timePart}</td>
         <td class="px-3 py-2">${order["לקוח"] || ''}</td>
         <td class="px-3 py-2">${order["כתובת"] || ''}</td>
         <td class="px-3 py-2">${order["מחסן"] || ''}</td>
-        <td class="px-3 py-2">${datePart} ${timePart}</td>
         <td class="px-3 py-2 font-bold ${getStatusColor(order["סטטוס"])}">${order["סטטוס"] || ''}</td>
         <td class="px-3 py-2">${order["נהג"] || ''}</td>
-        <td class="px-3 py-2">${order["פעולות"] || ''}</td>
+        <td class="px-3 py-2">${order["סוג הובלה"] || ''}</td>
+        <td class="px-3 py-2">${order["זמן אספקה"] || ''}</td>
+        <td class="px-3 py-2">${order["הערות"] || ''}</td>
+        <td class="px-3 py-2">${formatDate(order["תאריך יצירה"]) || ''}</td>
       </tr>
     `;
   }).join('');
 }
-        // Apply filters to orders
-         function splitDateTime(dateTimeStr) {
-  const parts = dateTimeStr.split(' ');
-  return [parts[0] || '', parts[1] || ''];
-}
 
-function formatDateTimeFromISO(isoString) {
-  try {
-    const date = new Date(isoString);
-    if (isNaN(date)) return [isoString, ''];
-    const d = date.toLocaleDateString('he-IL');
-    const t = date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-    return [d, t];
-  } catch (e) {
-    return [isoString, ''];
-  }
-}
-         function getStatusColor(status) {
-  if (!status) return 'text-gray-500';
-  switch (status.trim()) {
-    case 'ממתינה': case 'ממתין': return 'text-yellow-500';
-    case 'בטיפול': return 'text-blue-600';
-    case 'הושלם': return 'text-green-600';
-    case 'בוטל': return 'text-red-500';
-    default: return 'text-gray-700';
-  }
-}
 
         function filterOrders(orders) {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -754,6 +731,41 @@ function formatDateTimeFromISO(isoString) {
         }
 
         // Update drivers list from orders
+        function splitDateTime(dateTimeStr) {
+  const parts = dateTimeStr.split(' ');
+  return [parts[0] || '', parts[1] || ''];
+}
+
+function formatDateTimeFromISO(isoString) {
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date)) return [isoString, ''];
+    const d = date.toLocaleDateString('he-IL');
+    const t = date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+    return [d, t];
+  } catch (e) {
+    return [isoString, ''];
+  }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return isNaN(date) ? dateStr : date.toLocaleDateString('he-IL');
+}
+
+function getStatusColor(status) {
+  if (!status) return 'text-gray-500';
+  switch (status.trim()) {
+    case 'ממתינה':
+    case 'ממתין': return 'text-yellow-500';
+    case 'בטיפול': return 'text-blue-600';
+    case 'הושלם': return 'text-green-600';
+    case 'בוטל': return 'text-red-500';
+    default: return 'text-gray-700';
+  }
+}
+
         function updateDriversList(orders) {
             const drivers = new Set();
             orders.forEach(order => {
