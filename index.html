@@ -1,4 +1,134 @@
-<!DOCTYPE html>
+הנחיה לכלי בינה מלאכותית לפיתוח הדשבורד
+הנחיה:
+"אתה כלי בינה מלאכותית לפיתוח ממשקים. עליך לפתח דשבורד מקצועי למחלקת הזמנות של ח.סבן בהתבסס על האיפיון הבא. הדשבורד צריך להיות רספונסיבי, בעל עיצוב זכוכית (Glassmorphism) עם גבולות לבנים שקופים, טשטוש עדין, וגרדיאנט צבעוני. השתמש ב-React with Tailwind CSS ל-Front-end, Chart.js לגרפים, ו-Axios לקריאות API. הדשבורד מתחבר לגיליון Google Sheets דרך Google Apps Script API (קובץ Code.gs מצורף). כל העדכון חייב להתבצע אונליין גיליון. ממש את כל הפונקציונליות, כולל אנימציות (דעיכה ל-POPUP, זוהר לכפתורים), גרפים, והתראות. הוסף בדיקות מקיפות (בדיקות יחידה, דוור) והבטח סנכרון מלא עם הגיליון. השתמש בגופן Rubik/Assistant לעברית, ושמור על ממשק קליל ומקצועי עם חבית דקורטיבית ברקע."
+
+פרטי פיתוח:
+מבנה :
+לשוניות: ראשי, חכמת, עלי, מוביל חיצוני.
+כרטיס לקוח עם פרטים, היסטוריה, ותיבת Waze.
+פונקציונליות :
+חיפוש וסינון חכם בלשונית ראשי.
+ניהול הזמנות (הוספה, עריכה, מחיקה) עם שיוך נהגים.
+התראות קרבה ב-POPUP מהבהב.
+שליחת הודעות ווטסאפ (ללקוח ולנהג) עם תבניות ממאגר.
+גרף זמינות נהגים (06:00-17:00).
+חיבור API :
+doGet , doPost , doPut , doDelete לניהול הזמנות.
+sendWhatsAppMessage לשליחת הודעות.
+בדקות :
+בדיקות יחידה לפעולות API.
+Postman לבדיקת תגובות.
+בדיקת סנכרון עם הגיליון.
+קובץ Code.gs לפיתוח:
+ג'אווהסקריפט
+
+הִתמוֹטְטוּת
+
+לְגוֹלֵל
+
+לָרוּץ
+
+לְהַעְתִיק
+const SHEET_NAME = "הזמנות";
+
+function doGet(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  const data = sheet.getDataRange().getValues();
+  const headers = data.shift();
+  const result = data.map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i]);
+    return obj;
+  });
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  if (!e || !e.postData || !e.postData.contents) {
+    return ContentService.createTextOutput("Missing postData");
+  }
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  const data = JSON.parse(e.postData.contents);
+  const values = [
+    data["מספר הזמנה"], data["תאריך"], data["שעה"], data["לקוח"], data["כתובת"],
+    data["מחסן"], data["סטטוס"], data["נהג"], data["סוג הובלה"], data["הערות"],
+    new Date(), data["טלפון"]
+  ];
+  sheet.appendRow(values);
+  return ContentService.createTextOutput("Success");
+}
+
+function doPut(e) {
+  if (!e || !e.postData || !e.postData.contents) {
+    return ContentService.createTextOutput("Missing postData");
+  }
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  const data = JSON.parse(e.postData.contents);
+  const id = data["מספר הזמנה"];
+  if (!id) return ContentService.createTextOutput("Missing order ID");
+
+  const rows = sheet.getDataRange().getValues();
+  const headers = rows[0];
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0] == id) {
+      headers.forEach((h, j) => {
+        if (data[h] !== undefined) {
+          sheet.getRange(i + 1, j + 1).setValue(data[h]);
+        }
+      });
+      break;
+    }
+  }
+  return ContentService.createTextOutput("Updated");
+}
+
+function doDelete(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  const id = e.parameter.id;
+  if (!id) return ContentService.createTextOutput("Missing ID");
+
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] == id) {
+      sheet.deleteRow(i + 1);
+      break;
+    }
+  }
+  return ContentService.createTextOutput("Deleted");
+}
+
+function sendWhatsAppMessage(phone, message) {
+  const url = "https://api.twilio.com/2010-04-01/Accounts/[YOUR_TWILIO_SID]/Messages.json";
+  const payload = {
+    "To": `whatsapp:${phone}`,
+    "From": `whatsapp:[YOUR_TWILIO_NUMBER]`,
+    "Body": message
+  };
+  const options = {
+    "method": "post",
+    "payload": payload,
+    "headers": {
+      "Authorization": "Basic " + Utilities.base64Encode("[YOUR_TWILIO_SID]:[YOUR_TWILIO_AUTH_TOKEN]")
+    }
+  };
+  UrlFetchApp.fetch(url, options);
+  return ContentService.createTextOutput("Message sent");
+}
+דוגמה לגרף זמינות נהג
+
+גרוק יכול לעשות טעויות. תמיד בדוק את המקורות המקוריים.
+
+הורדה
+מאגר הודעות
+"ההזמנה שלך נכנסה למערכת ומתינה לשיוך לנהג."
+"ההזמנה שלך לעירנו מתעכבת בעוד שעה."
+"[נהג], יצא לדרך. הנה קישור Waze: [קישור]. שעת הגעה: [שעה]."
+שלבי פיתוח סופיים
+עיצוב ממשק זכוכית זכוכית עם חבית דקורטיבית.
+חיבור לגיליון דרך API, יישום כל הפונקציונליות.
+הוספת אנימציות, גרפים, ו-POPUPs.
+בדיקות מקיפות והשקה.
+אם יש צורך בתוספות, אנא ספק!<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
